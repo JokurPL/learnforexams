@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ExamsCategories {
+  id    Int     @id @default(autoincrement())
+  name  String? @unique
+  Exams Exams[]
+}
+
+model Answers {
+  id                Int                 @id @default(autoincrement())
+  content           String?
+  img               String?
+  AnswersToExercise AnswersToExercise[]
+}
+
+model Questions {
+  id       Int        @id @default(autoincrement())
+  content  String?
+  img      String?
+  Exercise Exercise[]
+}
+
+model Exercise {
+  id       Int       @id @default(autoincrement())
+  exam     Exams     @relation(fields: [examId], references: [id])
+  question Questions @relation(fields: [questionId], references: [id])
+  number   Int
+
+  examId            Int
+  questionId        Int
+  AnswersToExercise AnswersToExercise[]
+}
+
+model AnswersToExercise {
+  id         Int      @id @default(autoincrement())
+  is_good    Boolean
+  answer     Answers  @relation(fields: [answersId], references: [id])
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+  answersId  Int
+  exerciseId Int
+}
+
+model Exams {
+  id                Int             @id @default(autoincrement())
+  date              String
+  examCategory      ExamsCategories @relation(fields: [examsCategoriesId], references: [id])
+  Exercise          Exercise[]
+  examsCategoriesId Int
+}
