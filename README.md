@@ -1,3 +1,3 @@
 # DB model
 
-![db model]('https://i.imgur.com/Y58vsZK.png')
+![db model](https://i.imgur.com/Y58vsZK.png)
