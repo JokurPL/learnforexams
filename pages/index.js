@@ -87,18 +87,6 @@ const examsCategory = [
   },
 ];
 
-const Exam = ({ data }) => {
-  console.log(data);
-  const { name } = data;
-  return (
-    <ListItem disablePadding>
-      <ListItemButton>
-        <ListItemText primary={name} />
-      </ListItemButton>
-    </ListItem>
-  );
-};
-
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -112,7 +100,7 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
+          <Typography component={"span"}>{children}</Typography>
         </Box>
       )}
     </div>
@@ -166,50 +154,48 @@ export default function Home() {
             <TabPanel key={examCat.id} value={value} index={examCat.id}>
               {currentExams.map((exam) => {
                 return (
-                  <>
-                    <Accordion key={exam.id}>
-                      <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls={`panel${exam.id}-content`}
-                        id={`panel${exam.id}-header`}
-                      >
-                        <Typography>
-                          {exam.examCategory} - {exam.namedate}
-                        </Typography>
-                      </AccordionSummary>
-                      <AccordionDetails>
-                        <Stack direction="row" spacing={2}>
-                          <Button
-                            variant="contained"
-                            color="success"
-                            endIcon={<QuizIcon />}
-                          >
-                            TEST
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="warning"
-                            endIcon={<EditIcon />}
-                          >
-                            Arkusz - teoria
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="warning"
-                            endIcon={<HandymanIcon />}
-                          >
-                            Arkusz - praktyka
-                          </Button>
-                          <Button variant="contained" endIcon={<KeyIcon />}>
-                            Klucz odpowiedzi - teoria
-                          </Button>
-                          <Button variant="contained" endIcon={<KeyIcon />}>
-                            Klucz odpowiedzi - praktyka
-                          </Button>
-                        </Stack>
-                      </AccordionDetails>
-                    </Accordion>
-                  </>
+                  <Accordion key={exam.id}>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls={`panel${exam.id}-content`}
+                      id={`panel${exam.id}-header`}
+                    >
+                      <Typography>
+                        {exam.examCategory} - {exam.namedate}
+                      </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Stack direction="row" spacing={2}>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          endIcon={<QuizIcon />}
+                        >
+                          TEST
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="warning"
+                          endIcon={<EditIcon />}
+                        >
+                          Arkusz - teoria
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="warning"
+                          endIcon={<HandymanIcon />}
+                        >
+                          Arkusz - praktyka
+                        </Button>
+                        <Button variant="contained" endIcon={<KeyIcon />}>
+                          Klucz odpowiedzi - teoria
+                        </Button>
+                        <Button variant="contained" endIcon={<KeyIcon />}>
+                          Klucz odpowiedzi - praktyka
+                        </Button>
+                      </Stack>
+                    </AccordionDetails>
+                  </Accordion>
                 );
               })}
             </TabPanel>

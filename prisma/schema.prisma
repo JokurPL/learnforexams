@@ -14,6 +14,8 @@ model ExamsCategories {
   id    Int     @id @default(autoincrement())
   name  String? @unique
   Exams Exams[]
+
+  @@map("exams_categories")
 }
 
 model Answers {
@@ -21,6 +23,8 @@ model Answers {
   content           String?
   img               String?
   AnswersToExercise AnswersToExercise[]
+
+  @@map("answers")
 }
 
 model Questions {
@@ -28,6 +32,8 @@ model Questions {
   content  String?
   img      String?
   Exercise Exercise[]
+
+  @@map("questions")
 }
 
 model Exercise {
@@ -39,6 +45,8 @@ model Exercise {
   examId            Int
   questionId        Int
   AnswersToExercise AnswersToExercise[]
+
+  @@map("exercise")
 }
 
 model AnswersToExercise {
@@ -48,6 +56,8 @@ model AnswersToExercise {
   exercise   Exercise @relation(fields: [exerciseId], references: [id])
   answersId  Int
   exerciseId Int
+
+  @@map("answers_to_exercise")
 }
 
 model Exams {
@@ -56,4 +66,6 @@ model Exams {
   examCategory      ExamsCategories @relation(fields: [examsCategoriesId], references: [id])
   Exercise          Exercise[]
   examsCategoriesId Int
+
+  @@map("exams")
 }
