@@ -1,11 +1,18 @@
+/* eslint-disable @next/next/no-img-element */
 import Head from "next/head";
 import prisma from "models";
 import {
+  Alert,
   Button,
   Card,
   CardContent,
   CardMedia,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Fab,
   FormControl,
   FormControlLabel,
@@ -19,6 +26,8 @@ import { useEffect, useState } from "react";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import Link from "next/link";
+import Image from "next/image";
+import { Box } from "@mui/system";
 export const getServerSideProps = async ({ req, params }) => {
   const examCategory = params.category;
   const examDate = params.date;
@@ -95,10 +104,20 @@ export const getServerSideProps = async ({ req, params }) => {
 };
 
 export default function Exam({ examCategory, examDate, exercises }) {
+  const successBorderImg = {
+    borderColor: "lightgreen",
+  };
+
+  const failBorderImg = {
+    borderColor: "#f44336",
+  };
+
   const [answers, setAnswers] = useState([]);
   const [showGoodAnswers, setShowGoodAnswers] = useState(false);
   const [score, setScore] = useState(0);
   const [whatIsBad, setWhatIsBad] = useState([]);
+
+  const [alert, setAlert] = useState(false);
 
   const onChangeAnswer = (event, exerciseNumber, answerId, isGood) => {
     console.log(event.currentTarget.value);
@@ -116,20 +135,50 @@ export default function Exam({ examCategory, examDate, exercises }) {
   };
 
   useEffect(() => {
-    console.log(whatIsBad);
     return;
   }, [answers, whatIsBad]);
 
   const onSubmitHandler = (e) => {
     e.preventDefault();
+    if (answers.length < exercises.length) {
+      setAlert(true);
+      return;
+    }
     const goodAnswer = answers.filter((answer) => answer.isGood === true);
     setShowGoodAnswers(true);
     setScore(goodAnswer.length);
     setWhatIsBad(answers.filter((a) => a.isGood === false));
   };
 
+  const handleClose = () => {
+    setAlert(false);
+  };
+
   return (
     <Container maxWidth="lg" sx={{ marginTop: "2%", marginBottom: "2%" }}>
+      <div>
+        <Dialog
+          open={alert}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Nie odpowiedziałeś na wszystkie pytania"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Zostało jeszcze {exercises.length - answers.length} pytań bez
+              odpowiedzi! Spróbuj nawet strzelić!
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} autoFocus>
+              Rozumiem
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
       <Link href="/" passHref>
         <Fab variant="extended" sx={{ margin: "2%", marginLeft: "0" }}>
           <ArrowBackIosIcon sx={{ mr: 1 }} />
@@ -180,24 +229,57 @@ export default function Exam({ examCategory, examDate, exercises }) {
                             )
                           }
                           key={answer.id}
-                          value={answer.answer.content}
+                          value={
+                            answer.answer.img
+                              ? answer.answer.img
+                              : answer.answer.content
+                          }
                           control={<Radio />}
                           label={
-                            <Typography
-                              color={
-                                whatIsBad.filter(
-                                  (badAnswer) =>
-                                    badAnswer.answerId === answer.id &&
-                                    badAnswer.exerciseNumber === exercise.number
-                                ).length > 0 && showGoodAnswers
-                                  ? "#f44336"
-                                  : answer.is_good &&
-                                    showGoodAnswers &&
-                                    "lightgreen"
-                              }
-                            >
-                              {answer.answer.content}
-                            </Typography>
+                            answer.answer.img ? (
+                              whatIsBad.filter(
+                                (badAnswer) =>
+                                  badAnswer.answerId === answer.id &&
+                                  badAnswer.exerciseNumber === exercise.number
+                              ).length > 0 && showGoodAnswers ? (
+                                <img
+                                  alt="answer"
+                                  border={3}
+                                  style={{ borderColor: "#f44336" }}
+                                  src={answer.answer.img}
+                                />
+                              ) : answer.is_good && showGoodAnswers ? (
+                                <img
+                                  alt="answer"
+                                  border={3}
+                                  style={{ borderColor: "lightgreen" }}
+                                  src={answer.answer.img}
+                                />
+                              ) : (
+                                <img
+                                  alt="answer"
+                                  border={3}
+                                  src={answer.answer.img}
+                                />
+                              )
+                            ) : (
+                              <Typography
+                                color={
+                                  whatIsBad.filter(
+                                    (badAnswer) =>
+                                      badAnswer.answerId === answer.id &&
+                                      badAnswer.exerciseNumber ===
+                                        exercise.number
+                                  ).length > 0 && showGoodAnswers
+                                    ? "#f44336"
+                                    : answer.is_good &&
+                                      showGoodAnswers &&
+                                      "lightgreen"
+                                }
+                              >
+                                {answer.answer.content}
+                              </Typography>
+                            )
                           }
                         />
                       );
@@ -225,16 +307,16 @@ export default function Exam({ examCategory, examDate, exercises }) {
         SPRAWDŹ ODPOWIEDZI
       </Button>
       {showGoodAnswers && (
-        <Typography
-          sx={{
-            textAlign: "center",
-            fontSize: "2em",
-            color: (score / answers.length) * 100 > 50 ? "#66bb6a" : "#f44336",
-          }}
+        <Alert
+          variant="filled"
+          severity={(score / answers.length) * 100 > 50 ? "success" : "error"}
+          sx={{ mt: "1%" }}
         >
-          Twój wynik to: {score}/{answers.length} -{" "}
-          {answers.length > 0 ? (score / answers.length) * 100 : 0}%
-        </Typography>
+          <Typography>
+            Twój wynik: {Math.floor((score / answers.length) * 100)}% ({score}/
+            {answers.length})
+          </Typography>
+        </Alert>
       )}
     </Container>
   );
