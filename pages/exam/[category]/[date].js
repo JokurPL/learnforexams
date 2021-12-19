@@ -3,7 +3,6 @@ import prisma from "models";
 import {
   Button,
   Card,
-  CardActions,
   CardContent,
   CardMedia,
   Container,
@@ -16,7 +15,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import Link from "next/link";
@@ -96,16 +95,44 @@ export const getServerSideProps = async ({ req, params }) => {
 };
 
 export default function Exam({ examCategory, examDate, exercises }) {
-  const [goodAnswerStyle, setGoodAnswerStyle] = useState(false);
-  const showGoodAnswers = () => {
-    setGoodAnswerStyle(!goodAnswerStyle);
+  const [answers, setAnswers] = useState([]);
+  const [showGoodAnswers, setShowGoodAnswers] = useState(false);
+  const [score, setScore] = useState(0);
+  const [whatIsBad, setWhatIsBad] = useState([]);
+
+  const onChangeAnswer = (event, exerciseNumber, answerId, isGood) => {
+    console.log(event.currentTarget.value);
+    console.log(exerciseNumber);
+    const answer = {
+      exerciseNumber,
+      answerId,
+      isGood,
+    };
+
+    const oldAnswers = answers.filter(
+      (answer) => answer.exerciseNumber !== exerciseNumber
+    );
+    setAnswers([...oldAnswers, answer]);
+  };
+
+  useEffect(() => {
+    console.log(whatIsBad);
+    return;
+  }, [answers, whatIsBad]);
+
+  const onSubmitHandler = (e) => {
+    e.preventDefault();
+    const goodAnswer = answers.filter((answer) => answer.isGood === true);
+    setShowGoodAnswers(true);
+    setScore(goodAnswer.length);
+    setWhatIsBad(answers.filter((a) => a.isGood === false));
   };
 
   return (
     <Container maxWidth="lg" sx={{ marginTop: "2%", marginBottom: "2%" }}>
       <Link href="/" passHref>
         <Fab variant="extended" sx={{ margin: "2%", marginLeft: "0" }}>
-          <ArrowBackIosIcon fixed sx={{ mr: 1 }} />
+          <ArrowBackIosIcon sx={{ mr: 1 }} />
           POWRÓT
         </Fab>
       </Link>
@@ -114,7 +141,6 @@ export default function Exam({ examCategory, examDate, exercises }) {
           {examCategory} - {examDate} test online
         </title>
       </Head>
-      {/* <Button onClick={showGoodAnswers}>Pokaż tylko poprawne odpowiedzi</Button> */}
       <Stack spacing={2}>
         {exercises.map((exercise) => {
           return (
@@ -144,10 +170,35 @@ export default function Exam({ examCategory, examDate, exercises }) {
                     {exercise.answers.map((answer) => {
                       return (
                         <FormControlLabel
+                          color="success"
+                          onChange={(e) =>
+                            onChangeAnswer(
+                              e,
+                              exercise.number,
+                              answer.id,
+                              answer.is_good
+                            )
+                          }
                           key={answer.id}
                           value={answer.answer.content}
                           control={<Radio />}
-                          label={answer.answer.content}
+                          label={
+                            <Typography
+                              color={
+                                whatIsBad.filter(
+                                  (badAnswer) =>
+                                    badAnswer.answerId === answer.id &&
+                                    badAnswer.exerciseNumber === exercise.number
+                                ).length > 0 && showGoodAnswers
+                                  ? "#f44336"
+                                  : answer.is_good &&
+                                    showGoodAnswers &&
+                                    "lightgreen"
+                              }
+                            >
+                              {answer.answer.content}
+                            </Typography>
+                          }
                         />
                       );
                     })}
@@ -158,9 +209,11 @@ export default function Exam({ examCategory, examDate, exercises }) {
           );
         })}
       </Stack>
+
       <Button
         variant="contained"
         size="large"
+        onClick={onSubmitHandler}
         sx={{
           textAlign: "center",
           margin: "1% auto",
@@ -169,8 +222,20 @@ export default function Exam({ examCategory, examDate, exercises }) {
         }}
         endIcon={<FactCheckIcon />}
       >
-        SPRAWDŹ EGZAMIN
+        SPRAWDŹ ODPOWIEDZI
       </Button>
+      {showGoodAnswers && (
+        <Typography
+          sx={{
+            textAlign: "center",
+            fontSize: "2em",
+            color: (score / answers.length) * 100 > 50 ? "#66bb6a" : "#f44336",
+          }}
+        >
+          Twój wynik to: {score}/{answers.length} -{" "}
+          {answers.length > 0 ? (score / answers.length) * 100 : 0}%
+        </Typography>
+      )}
     </Container>
   );
 }
