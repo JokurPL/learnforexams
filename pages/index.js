@@ -3,89 +3,20 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
-  ButtonGroup,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Rating,
   Stack,
   Tab,
   Tabs,
   Typography,
 } from "@mui/material";
 import Button from "@mui/material/Button";
-import Head from "next/head";
-import Image from "next/image";
 import { useState } from "react";
-import styles from "../styles/Home.module.css";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import KeyIcon from "@mui/icons-material/Key";
 import QuizIcon from "@mui/icons-material/Quiz";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import EditIcon from "@mui/icons-material/Edit";
-
-const exams = [
-  {
-    id: 0,
-    examCategory: "EE21",
-    namedate: "06.2021",
-  },
-  {
-    id: 1,
-    examCategory: "EE19",
-    namedate: "06.2021",
-  },
-  {
-    id: 2,
-    examCategory: "E20",
-    namedate: "06.2021",
-  },
-  {
-    id: 3,
-    examCategory: "E21",
-    namedate: "06.2021",
-  },
-  {
-    id: 4,
-    examCategory: "EE22",
-    namedate: "06.2021",
-  },
-  {
-    id: 5,
-    examCategory: "EE22",
-    namedate: "06.2020",
-  },
-];
-
-const examsCategory = [
-  {
-    id: 0,
-    name: "EE21",
-    namedate: "06.2021",
-  },
-  {
-    id: 1,
-    name: "EE19",
-    namedate: "06.2021",
-  },
-  {
-    id: 2,
-    name: "E20",
-    namedate: "06.2021",
-  },
-  {
-    id: 3,
-    name: "E21",
-    namedate: "06.2021",
-  },
-  {
-    id: 4,
-    name: "EE22",
-    namedate: "06.2021",
-  },
-];
+import prisma from "models";
+import Link from "next/link";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -114,8 +45,30 @@ function a11yProps(index) {
   };
 }
 
-export default function Home() {
+export const getServerSideProps = async ({ req }) => {
+  const examsCategories = await prisma.examsCategories.findMany();
+  const exams = await prisma.exams.findMany();
+
+  return {
+    props: {
+      examsCategories,
+      exams,
+    },
+  };
+};
+
+export default function Home({ examsCategories, exams }) {
   const [value, setValue] = useState(0);
+
+  const getExamCategory = (categoryId) => {
+    const categoryName = examsCategories.filter((cat) => cat.id === categoryId);
+
+    if (categoryName === undefined) {
+      return "Wystąpił błąd";
+    }
+
+    return categoryName[0].name;
+  };
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -136,47 +89,63 @@ export default function Home() {
           variant="scrollable"
           value={value}
           onChange={handleChange}
-          aria-label="Vertical list of examsCategory"
-          sx={{ borderRight: 1, borderColor: "divider" }}
+          aria-label="Vertical list of examsCategories"
+          sx={{ borderRight: 1, borderColor: "divider", minWidth: "6em" }}
         >
-          {examsCategory.map((exam) => {
+          {examsCategories.map((exam, index) => {
             return (
-              <Tab key={exam.id} label={exam.name} {...a11yProps(exam.id)} />
+              <Tab
+                sx={{ fontSize: "1.2em" }}
+                key={exam.id}
+                label={exam.name}
+                {...a11yProps(index)}
+              />
             );
           })}
         </Tabs>
-        {examsCategory.map((examCat) => {
+        {examsCategories.map((examCat, index) => {
           let currentExams = exams.filter(
-            (exam) => exam.examCategory === examCat.name
+            (exam) => exam.examsCategoriesId === examCat.id
           );
 
           return (
-            <TabPanel key={examCat.id} value={value} index={examCat.id}>
-              {currentExams.map((exam) => {
+            <TabPanel key={examCat.id} value={value} index={index}>
+              {currentExams.map((exam, examIndex) => {
                 return (
-                  <Accordion key={exam.id}>
+                  <Accordion key={examIndex}>
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
-                      aria-controls={`panel${exam.id}-content`}
-                      id={`panel${exam.id}-header`}
+                      aria-controls={`panel${examIndex}-content`}
+                      id={`panel${examIndex}-header`}
                     >
                       <Typography>
-                        {exam.examCategory} - {exam.namedate}
+                        {getExamCategory(exam.examsCategoriesId)} - {exam.date}
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      <Stack direction="row" spacing={2}>
-                        <Button
-                          variant="contained"
-                          color="success"
-                          endIcon={<QuizIcon />}
+                      <Stack
+                        direction={{ xs: "column", sm: "row" }}
+                        spacing={2}
+                      >
+                        <Link
+                          href={`/exam/${getExamCategory(
+                            exam.examsCategoriesId
+                          )}/${exam.date}`}
+                          passHref
                         >
-                          TEST
-                        </Button>
+                          <Button
+                            variant="contained"
+                            color="success"
+                            endIcon={<QuizIcon />}
+                          >
+                            TEST
+                          </Button>
+                        </Link>
                         <Button
                           variant="contained"
                           color="warning"
                           endIcon={<EditIcon />}
+                          disabled
                         >
                           Arkusz - teoria
                         </Button>
@@ -184,13 +153,22 @@ export default function Home() {
                           variant="contained"
                           color="warning"
                           endIcon={<HandymanIcon />}
+                          disabled
                         >
                           Arkusz - praktyka
                         </Button>
-                        <Button variant="contained" endIcon={<KeyIcon />}>
+                        <Button
+                          variant="contained"
+                          endIcon={<KeyIcon />}
+                          disabled
+                        >
                           Klucz odpowiedzi - teoria
                         </Button>
-                        <Button variant="contained" endIcon={<KeyIcon />}>
+                        <Button
+                          variant="contained"
+                          endIcon={<KeyIcon />}
+                          disabled
+                        >
                           Klucz odpowiedzi - praktyka
                         </Button>
                       </Stack>

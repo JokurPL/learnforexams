@@ -6,9 +6,9 @@ const getAllCategories = async (req, res) => {
       try {
         const examCategories = await examsCategories.findMany();
 
-        res.status(200).json(examCategories);
+        res.status(200).json({ categories: examCategories });
       } catch (e) {
-        res.status(422).json({ error: e });
+        res.status(422).json({ categories: null, error: e });
         console.log(e);
       }
       break;

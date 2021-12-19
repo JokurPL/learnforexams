@@ -11,13 +11,11 @@ if (process.env.NODE_ENV === "production") {
   prisma = global.prisma;
 }
 
-// console.log(prisma);
+export default prisma;
 
-export const {
-  examsCategories,
-  answers,
-  questions,
-  exercise,
-  answersToExercise,
-  exams,
-} = prisma;
+//   examsCategories,
+//   answers,
+//   questions,
+//   exercise,
+//   answersToExercise,
+//   exams,

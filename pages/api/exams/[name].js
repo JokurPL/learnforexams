@@ -13,7 +13,9 @@ const getAllExams = async (req, res) => {
         });
 
         if (examCategory === null) {
-          res.status(404).json({ error: "This category do not exist." });
+          res
+            .status(404)
+            .json({ exams: null, error: "This category do not exist." });
         }
 
         const exams = await Exams.findMany({
@@ -22,7 +24,7 @@ const getAllExams = async (req, res) => {
           },
         });
 
-        res.status(200).json(exams);
+        res.status(200).json({ exams: exams });
       } catch (e) {
         res.status(422).json({ error: e });
         console.log(e);
