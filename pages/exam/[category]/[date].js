@@ -89,6 +89,12 @@ export const getServerSideProps = async ({ req, params }) => {
     //   answers: [ [Object], [Object], [Object], [Object] ]
     // }
 
+    if (exercises.length === 0) {
+      return {
+        notFound: true,
+      };
+    }
+
     return {
       props: {
         examCategory,
@@ -120,8 +126,6 @@ export default function Exam({ examCategory, examDate, exercises }) {
   const [alert, setAlert] = useState(false);
 
   const onChangeAnswer = (event, exerciseNumber, answerId, isGood) => {
-    console.log(event.currentTarget.value);
-    console.log(exerciseNumber);
     const answer = {
       exerciseNumber,
       answerId,
@@ -201,14 +205,7 @@ export default function Exam({ examCategory, examDate, exercises }) {
                   image={exercise.question_img}
                   alt="green iguana"
                 />
-              ) : (
-                <CardMedia
-                  component="img"
-                  height={"200"}
-                  image="https://bigram.pl/wp-content/themes/consultix/images/no-image-found-360x260.png"
-                  alt="green iguana"
-                />
-              )}
+              ) : null}
 
               <CardContent>
                 <Typography gutterBottom variant="h5" component="div">

@@ -3,6 +3,7 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
+  IconButton,
   Stack,
   Tab,
   Tabs,
@@ -17,6 +18,9 @@ import HandymanIcon from "@mui/icons-material/Handyman";
 import EditIcon from "@mui/icons-material/Edit";
 import prisma from "models";
 import Link from "next/link";
+import { signIn, signOut, useSession } from "next-auth/react";
+import LoginIcon from "@mui/icons-material/Login";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -60,6 +64,8 @@ export const getServerSideProps = async ({ req }) => {
 export default function Home({ examsCategories, exams }) {
   const [value, setValue] = useState(0);
 
+  const { data: session } = useSession();
+
   const getExamCategory = (categoryId) => {
     const categoryName = examsCategories.filter((cat) => cat.id === categoryId);
 
@@ -76,6 +82,38 @@ export default function Home({ examsCategories, exams }) {
 
   return (
     <div style={{ width: "100%", margin: "0 auto" }}>
+      {!session ? (
+        <IconButton
+          sx={{
+            position: "absolute",
+            bottom: "1%",
+            right: "1%",
+            cursor: "pointer",
+          }}
+          color="primary"
+          aria-label="sign in"
+          component="span"
+          onClick={() => signIn()}
+        >
+          <LoginIcon />
+        </IconButton>
+      ) : (
+        <IconButton
+          sx={{
+            position: "absolute",
+            bottom: "1%",
+            right: "1%",
+            cursor: "pointer",
+          }}
+          color="primary"
+          aria-label="sign in"
+          component="span"
+          onClick={() => signOut()}
+        >
+          <AdminPanelSettingsIcon />
+        </IconButton>
+      )}
+
       <Box
         sx={{
           flexGrow: 1,
