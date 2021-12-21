@@ -11,7 +11,6 @@ import LayersIcon from "@mui/icons-material/Layers";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 
 export const SecondaryListItems = ({ exams }) => {
-  console.log(exams);
   return (
     <div>
       <ListSubheader inset>Ostatnie egzaminy</ListSubheader>

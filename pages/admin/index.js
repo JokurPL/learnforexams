@@ -14,7 +14,7 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
 import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
+import DeleteIcon from "@mui/icons-material/Delete";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -22,9 +22,12 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { MainListItems, SecondaryListItems } from "components/List";
 import {
+  Button,
+  Input,
   ListItem,
   ListItemIcon,
   ListItemText,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -36,9 +39,12 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import ArticleIcon from "@mui/icons-material/Article";
-// import Chart from "./Chart";
-// import Deposits from "./Deposits";
-// import Orders from "./Orders";
+import { useState } from "react";
+import EditIcon from "@mui/icons-material/Edit";
+import CancelIcon from "@mui/icons-material/Cancel";
+import CheckIcon from "@mui/icons-material/Check";
+import ExamsTable from "components/ExamsTable";
+import QuestionTable from "components/QuestionsTable";
 
 export const getServerSideProps = async ({ req }) => {
   const session = await getSession({ req });
@@ -75,8 +81,33 @@ export const getServerSideProps = async ({ req }) => {
       examCategory: true,
     },
   });
+
+  const questionsRAW = await prisma.questions.findMany({
+    include: {
+      Exercise: true,
+    },
+  });
+
+  const examsForQuestions = await prisma.exams.findMany({
+    include: {
+      examCategory: true,
+    },
+  });
+
+  const questions = questionsRAW.map((question) => {
+    let exam = examsForQuestions.filter(
+      (exam) => exam.id === question.Exercise[0].examId
+    )[0];
+
+    return {
+      ...question,
+      exam,
+    };
+  });
+
   return {
     props: {
+      questions,
       exams,
     },
   };
@@ -91,8 +122,8 @@ function Copyright(props) {
       {...props}
     >
       {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
+      <Link color="inherit" href="https://github.com/JokurPL/">
+        Mateusz Pietrzak
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -146,41 +177,10 @@ const Drawer = styled(MuiDrawer, {
   },
 }));
 
-const ExamsTable = ({ data }) => {
-  console.log(data);
-  return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>LP</TableCell>
-            <TableCell>ID</TableCell>
-            <TableCell>Oznaczenie</TableCell>
-            <TableCell>Data</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.map((exam, index) => (
-            <TableRow
-              key={exam.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {index + 1}
-              </TableCell>
-              <TableCell>{exam.id}</TableCell>
-              <TableCell>{exam.examCategory.name}</TableCell>
-              <TableCell>{exam.date}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-};
+function DashboardContent({ exams, questions }) {
+  const [open, setOpen] = useState(true);
+  const [index, setIndex] = useState(0);
 
-function DashboardContent({ exams }) {
-  const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -237,25 +237,25 @@ function DashboardContent({ exams }) {
         </Toolbar>
         <Divider />
         <List>
-          <ListItem button>
+          <ListItem onClick={() => setIndex(0)} selected={index === 0} button>
             <ListItemIcon>
               <AssignmentIcon />
             </ListItemIcon>
             <ListItemText primary="Egzaminy" />
           </ListItem>
-          <ListItem button>
+          <ListItem button onClick={() => setIndex(1)} selected={index === 1}>
             <ListItemIcon>
               <QuestionMarkIcon />
             </ListItemIcon>
             <ListItemText primary="Pytania" />
           </ListItem>
-          <ListItem button>
+          <ListItem onClick={() => setIndex(2)} selected={index === 2} button>
             <ListItemIcon>
               <ArticleIcon />
             </ListItemIcon>
             <ListItemText primary="Odpowiedzi" />
           </ListItem>
-          <ListItem button>
+          <ListItem onClick={() => setIndex(3)} selected={index === 3} button>
             <ListItemIcon>
               <ViewListIcon />
             </ListItemIcon>
@@ -281,31 +281,42 @@ function DashboardContent({ exams }) {
       >
         <Toolbar />
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          <Grid container spacing={3}>
-            {/* Chart */}
-            <Grid item xs={12}>
-              <Paper
-                sx={{
-                  p: 2,
-                  display: "flex",
-                  flexDirection: "column",
-                  // height: 240,
-                }}
-              >
-                {/* <Chart /> */}
-                <Typography align="center" variant="h3">
-                  Egzaminy
-                </Typography>
-                <ExamsTable data={exams} />
-              </Paper>
-            </Grid>
-            {/* Recent Orders */}
-            <Grid item xs={12}>
-              <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                {/* <Orders /> */}
-              </Paper>
-            </Grid>
-          </Grid>
+          {index === 0 && (
+            <>
+              <Typography sx={{ mb: 2 }} align="center" variant="h3">
+                Egzaminy
+              </Typography>
+              <ExamsTable data={exams} />
+            </>
+          )}
+
+          {index === 1 && (
+            <>
+              <Typography sx={{ mb: 2 }} align="center" variant="h3">
+                Pytania
+              </Typography>
+              <QuestionTable data={questions} exams={exams} />
+            </>
+          )}
+
+          {index === 2 && (
+            <>
+              <Typography sx={{ mb: 2 }} align="center" variant="h3">
+                Odpowiedzi
+              </Typography>
+              <ExamsTable data={exams} />
+            </>
+          )}
+
+          {index === 3 && (
+            <>
+              <Typography sx={{ mb: 2 }} align="center" variant="h3">
+                Kategorie
+              </Typography>
+              <ExamsTable data={exams} />
+            </>
+          )}
+
           <Copyright sx={{ pt: 4 }} />
         </Container>
       </Box>
@@ -313,6 +324,6 @@ function DashboardContent({ exams }) {
   );
 }
 
-export default function Dashboard({ exams }) {
-  return <DashboardContent exams={exams} />;
+export default function Dashboard({ exams, questions }) {
+  return <DashboardContent exams={exams} questions={questions} />;
 }
