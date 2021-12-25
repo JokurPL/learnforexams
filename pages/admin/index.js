@@ -151,9 +151,5 @@ export default function Dashboard({ exams, questions, children }) {
     setOpen(!open);
   };
 
-  return (
-    <DashboardTemplate exams={exams} question={questions}>
-      polska gurom
-    </DashboardTemplate>
-  );
+  return <DashboardTemplate>polska gurom</DashboardTemplate>;
 }

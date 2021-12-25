@@ -74,7 +74,7 @@ export const getServerSideProps = async ({ req }) => {
 
 export default function ExamsDashboard({ questions, exams }) {
   return (
-    <DashboardTemplate exams={exams}>
+    <DashboardTemplate>
       <Typography sx={{ mb: 2 }} align="center" variant="h3">
         Pytania
       </Typography>

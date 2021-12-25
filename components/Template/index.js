@@ -227,10 +227,6 @@ export default function DashboardTemplate({ question, exams, children }) {
             <ListItemText primary="Kategorie" />
           </ListItem>
         </List>
-        <Divider />
-        <List>
-          <SecondaryListItems exams={exams} />
-        </List>
       </Drawer>
       <Box
         component="main"

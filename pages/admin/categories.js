@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import ExamsTable from "components/ExamsTable";
+import CategoriesTable from "components/CategoriesTable";
 import DashboardTemplate from "components/Template";
 import { getSession } from "next-auth/react";
 
@@ -28,31 +28,31 @@ export const getServerSideProps = async ({ req }) => {
     };
   }
 
-  const exams = await prisma.exams.findMany({
+  const categories = await prisma.examsCategories.findMany({
     orderBy: [
       {
         id: "desc",
       },
     ],
     include: {
-      examCategory: true,
+      _count: true,
     },
   });
 
   return {
     props: {
-      exams,
+      categories,
     },
   };
 };
 
-export default function ExamsDashboard({ exams }) {
+export default function ExamsDashboard({ categories }) {
   return (
-    <DashboardTemplate exams={exams}>
+    <DashboardTemplate>
       <Typography sx={{ mb: 2 }} align="center" variant="h3">
         Kategorie
       </Typography>
-      <ExamsTable data={exams} />
+      <CategoriesTable data={categories} />
     </DashboardTemplate>
   );
 }

@@ -19,18 +19,15 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useState } from "react";
 import Paper from "@mui/material/Paper";
 
-export default function ExamsTable({ data, examCategories }) {
+export default function CategoriesTable({ data }) {
   const [edit, setEdit] = useState(false);
   const [editItem, setEditItem] = useState(null);
 
-  const [examCategory, setExamCategory] = useState(null);
+  const headers = ["LP", "ID", "Nazwa"];
 
-  const headers = ["LP", "ID", "Kategoria(nazwa)", "Data"];
-
-  const onEditClick = (e, itemId, defaultCategory) => {
+  const onEditClick = (e, itemId) => {
     setEdit(true);
     setEditItem(itemId);
-    setExamCategory(defaultCategory);
   };
 
   return (
@@ -45,51 +42,21 @@ export default function ExamsTable({ data, examCategories }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((exam, index) => (
+          {data.map((category, index) => (
             <TableRow
-              key={exam.id}
+              key={category.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
                 {index + 1}
               </TableCell>
-              <TableCell>{exam.id}</TableCell>
-              {edit && editItem === exam.id ? (
+              <TableCell>{category.id}</TableCell>
+              {edit && editItem === category.id ? (
                 <TableCell>
-                  <FormControl sx={{ m: 1, minWidth: 120 }}>
-                    <Select
-                      value={examCategory}
-                      // onChange={(e) => setExamCategory(e.target.value)}
-                      inputProps={{ "aria-label": "Without label" }}
-                    >
-                      {examCategories.map((category, index) => {
-                        return (
-                          <MenuItem
-                            key={index}
-                            value={category.name}
-                            onClick={() => setExamCategory(category.name)}
-                            selected={
-                              category.name === exam.examCategory.name
-                                ? true
-                                : false
-                            }
-                          >
-                            {category.name}
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
+                  <Input defaultValue={category.name} />
                 </TableCell>
               ) : (
-                <TableCell>{exam.examCategory.name}</TableCell>
-              )}
-              {edit && editItem === exam.id ? (
-                <TableCell>
-                  <Input defaultValue={exam.date} />
-                </TableCell>
-              ) : (
-                <TableCell>{exam.date}</TableCell>
+                <TableCell>{category.name}</TableCell>
               )}
               <TableCell>
                 <Stack
@@ -97,23 +64,21 @@ export default function ExamsTable({ data, examCategories }) {
                   justifyContent="center"
                   alignItems="center"
                 >
-                  {edit && editItem === exam.id ? null : (
+                  {edit && editItem === category.id ? null : (
                     <>
                       <IconButton color="error" variant="contained">
                         <DeleteIcon />
                       </IconButton>
 
                       <IconButton
-                        onClick={(e) =>
-                          onEditClick(e, exam.id, exam.examCategory.name)
-                        }
+                        onClick={(e) => onEditClick(e, category.id)}
                         variant="contained"
                       >
                         <EditIcon />
                       </IconButton>
                     </>
                   )}
-                  {edit && editItem === exam.id && (
+                  {edit && editItem === category.id && (
                     <>
                       <IconButton
                         onClick={() => setEdit(false)}
