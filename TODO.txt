@@ -1,0 +1,4 @@
+##########################
+- Utworzyc podstrony dla poszczegolnych danych - egzaminy, pytania... ~ dla poprawienia wydajnosci
+- Utworzyc KREATOR EGZAMINOW:
+    - przyjemne oraz intuicyjne tworzenie zadan!

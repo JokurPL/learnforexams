@@ -24,7 +24,6 @@ export default function QuestionTable({ data, exams }) {
   const [selectedExam, setSelectedExam] = useState(null);
 
   const headers = ["LP", "ID", "Treść", "Zdjęcie", "Egzamin", "Numer"];
-  console.log(data);
   const onEditClick = (e, itemId, defaultExam) => {
     setEdit(true);
     setEditItem(itemId);
@@ -54,44 +53,29 @@ export default function QuestionTable({ data, exams }) {
               <TableCell>{question.id}</TableCell>
               {edit && editItem === question.id ? (
                 <TableCell>
-                  <Input defaultValue={question.content} />
+                  <Input
+                    defaultValue={question.content}
+                    multiline
+                    sx={{ width: "100%" }}
+                  />
                 </TableCell>
               ) : (
                 <TableCell>{question.content}</TableCell>
               )}
               {edit && editItem === question.id ? (
                 <TableCell>
-                  <Input defaultValue={question.img} />
+                  <Input
+                    inputProps={{ fontSize: "2px" }}
+                    defaultValue={question.img}
+                    sx={{ width: "100%" }}
+                  />
                 </TableCell>
               ) : (
                 <TableCell>{question.img}</TableCell>
               )}
-              {edit && editItem === question.id ? (
-                <TableCell>
-                  <Select
-                    value={selectedExam}
-                    displayEmpty
-                    inputProps={{ "aria-label": "Without label" }}
-                  >
-                    {exams.map((exam, index) => {
-                      return (
-                        <MenuItem
-                          onClick={() => setSelectedExam(question.exam.id)}
-                          default
-                          key={index}
-                          value={exam.id}
-                        >
-                          {exam.examCategory.name} - {exam.date}
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </TableCell>
-              ) : (
-                <TableCell>
-                  {question.exam.examCategory.name} - {question.exam.date}
-                </TableCell>
-              )}
+              <TableCell>
+                {question.exam.examCategory.name} - {question.exam.date}
+              </TableCell>
               {edit && editItem === question.id ? (
                 <TableCell>
                   <Input defaultValue={question.Exercise[0].number} />
@@ -112,7 +96,9 @@ export default function QuestionTable({ data, exams }) {
                       </IconButton>
 
                       <IconButton
-                        onClick={(e) => onEditClick(e, question.id)}
+                        onClick={(e) =>
+                          onEditClick(e, question.id, question.exam.id)
+                        }
                         variant="contained"
                       >
                         <EditIcon />
