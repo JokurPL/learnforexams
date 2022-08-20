@@ -4,6 +4,7 @@ import ExamsTable from "components/ExamsTable";
 import QuestionTable from "components/QuestionsTable";
 import DashboardTemplate from "components/Template";
 import { getSession } from "next-auth/react";
+import prisma from "models";
 
 export const getServerSideProps = async ({ req }) => {
   const session = await getSession({ req });

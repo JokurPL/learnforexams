@@ -2,6 +2,7 @@ import { Typography } from "@mui/material";
 import CategoriesTable from "components/CategoriesTable";
 import DashboardTemplate from "components/Template";
 import { getSession } from "next-auth/react";
+import prisma from "models";
 
 export const getServerSideProps = async ({ req }) => {
   const session = await getSession({ req });
