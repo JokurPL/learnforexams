@@ -30,39 +30,43 @@ export const getServerSideProps = async ({ req }) => {
     };
   }
 
-  const exams = await prisma.exams.findMany({
-    orderBy: [
-      {
-        id: "desc",
+  try {
+    const exams = await prisma.exams.findMany({
+      orderBy: [
+        {
+          id: "desc",
+        },
+      ],
+      include: {
+        examCategory: true,
       },
-    ],
-    include: {
-      examCategory: true,
-    },
-  });
+    });
 
-  const questionsRAW = await prisma.questions.findMany({
-    include: {
-      Exercise: true,
-    },
-  });
+    const questionsRAW = await prisma.questions.findMany({
+      include: {
+        Exercise: true,
+      },
+    });
 
-  const examsForQuestions = await prisma.exams.findMany({
-    include: {
-      examCategory: true,
-    },
-  });
+    const examsForQuestions = await prisma.exams.findMany({
+      include: {
+        examCategory: true,
+      },
+    });
 
-  const questions = questionsRAW.map((question) => {
-    let exam = examsForQuestions.filter(
-      (exam) => exam.id === question.Exercise[0].examId
-    )[0];
+    const questions = questionsRAW.map((question) => {
+      let exam = examsForQuestions.filter(
+        (exam) => exam.id === question.Exercise[0].examId
+      )[0];
 
-    return {
-      ...question,
-      exam,
-    };
-  });
+      return {
+        ...question,
+        exam,
+      };
+    });
+  } catch (e) {
+    console.error(e);
+  }
 
   return {
     props: {
