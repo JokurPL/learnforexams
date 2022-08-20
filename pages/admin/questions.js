@@ -65,16 +65,16 @@ export const getServerSideProps = async ({ req }) => {
         exam,
       };
     });
+
+    return {
+      props: {
+        questions,
+        exams,
+      },
+    };
   } catch (e) {
     console.error(e);
   }
-
-  return {
-    props: {
-      questions,
-      exams,
-    },
-  };
 };
 
 export default function ExamsDashboard({ questions, exams }) {
