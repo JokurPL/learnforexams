@@ -1,5 +1,5 @@
 # Live demo
-[https://learnforexams.vercel.app/](https://learnforexams.vercel.app/m)
+[https://learnforexams.vercel.app/](https://learnforexams.vercel.app/)
 
 # DB model
 
